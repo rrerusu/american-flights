@@ -1,14 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="4fae9fe4-9e16-495b-860f-1fcec3444c13" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
 	<db:config name="MySQL_Database_Config" doc:name="Database Config" doc:id="60da4bf4-0b4d-465e-b3af-ee827fd14054" >
 		<db:my-sql-connection host="mudb.learn.mulesoft.com" port="3306" user="mule" password="mule" database="training" />
 	</db:config>
+	<flow name="getFlights" doc:id="4488a42d-1ce5-4fbd-bf24-1c6a98db2da2" >
+		<http:listener doc:name="Listener" doc:id="fdd12661-9970-45be-bc5b-12236d059a27" config-ref="HTTP_Listener_config" path="/american"/>
+		<db:select doc:name="Select" doc:id="fadf3fc3-79c9-434b-b6f7-b087f8600443" config-ref="MySQL_Database_Config">
+			<db:sql ><![CDATA[SELECT *
+	FROM american]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="b7cce1d3-3a8c-48f2-af71-cd7525a971d3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="64117e78-a57d-4138-a75c-0542dbfe23bd" message="#[payload]"/>
+	</flow>
 </mule>
